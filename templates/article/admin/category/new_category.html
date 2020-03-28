@@ -1,0 +1,75 @@
+
+{% block title %}
+    <div class="page-header">
+        <h1>添加分类</h1>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-md-6">
+            <div id="tips"></div>
+            <div class="form-group" id="category_select">
+
+            </div>
+            <div class="form-group">
+                <label for="name">分类名称</label>
+                {{ form.name(class="form-control") }}
+            </div>
+            <div class="radio">
+                {% for radio in form.cate_type %}
+                    <label class="radio-inline">
+                      {{ radio }}{{ radio.data }}
+                    </label>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.order_id.label }}
+                {{ form.order_id(class="form-control") }}
+            </div>
+            <div class="form-group">
+                <button class="btn btn-default form-control">添加</button>
+            </div>
+            <input type="hidden" id="parent_id" value="0">
+        </div>
+    </div>
+    <script src="/static/js/category.js"></script>
+    <script type="text/javascript">
+        var add_url = "{{ url_for('article.new_category') }}"
+        var category_url = "{{ url_for('article.get_cate') }}"
+        var csrf_token = "{{ csrf_token() }}"
+        var category_select = document.getElementById("category_select")
+        var parent_id = 0
+        var tips = document.getElementById("tips")
+        var name_input = document.querySelector("#name")
+        var order_id_input = document.querySelector("#order_id")
+
+
+
+        function add_new_cate() {
+            name = $("#name").val()
+            order_id = $("#order_id").val()
+            cate_type = $("input[name='cate_type']:checked").val()
+            $.ajax({
+                url: add_url,
+                type: "post",
+                beforeSend:function(xhr){
+                    xhr.setRequestHeader("X-CSRFToken", csrf_token)
+                },
+                data:{"parent_id":parent_id, "name":name, "order_id": order_id, "cate_type":cate_type},
+                success: function(data){
+                    if (data == "ok") {
+                        tips.innerHTML = "添加成功"
+                    } else {
+                        tips.innerHTML = data
+                    }
+                }
+            })
+
+        }
+        $(".btn").on('click',add_new_cate)
+        load_cate(0)
+
+    </script>
+{% endblock %}

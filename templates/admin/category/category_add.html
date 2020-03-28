@@ -1,0 +1,115 @@
+{% extends "admin/admin_base.html" %}
+
+		{% block content %}
+		
+		<div class="container-fluid">
+			<div class="row">
+				
+				<div class="main col-md-12 col-lg-12 col-xs-12 col-sm-12" >
+
+						<h3>添加分类 - <small><a href="{{ url_for("admin.manage_category") }}">分类列表</a> </small></h3>
+                    {% if message %}
+                        <div class="alert alert-info" role="alert">
+                                {{ message }}
+                        </div>
+                     {% endif %}
+						 <div class="body">
+							<form action="" method="post">
+								
+                             <div id="tips"></div>
+                             <div class="form-group" id="category_select">
+							 </div>
+							<div class="form-group">
+								<label for="title">分类名称:</label>
+								<input class="form-control" type="text" name="name" id="name" value=""  />
+							</div>
+
+							<div class="form-group">
+								<label for="order">显示顺序:</label>
+								<input class="form-control" type="text" name="order" id="order" value="0" />
+							</div>
+
+							<div class="form-group">
+								{{ form.csrf_token }}
+								<input type="hidden" id="parent_id" value="0">
+							  <input type="button" class="btn btn-default form-control" value="添加分类" />
+							</div>
+							</form>
+						 </div>
+
+
+				</div>
+			</div>
+		</div>
+       <script>
+		var add_url = "{{ url_for('admin.new_category') }}"
+        var csrf_token = "{{ csrf_token() }}"
+        var category_select = document.querySelector("#category_select")
+        var parent_id = 0
+        var tips = document.querySelector("#tips")
+        var name_input = document.querySelector("#name")
+        var order_id_input = document.querySelector("#order_id")
+        var btn = document.querySelector(".btn")
+
+        function createSelect(data, level=0){
+            var select = document.createElement("select")
+            select.options.add(new Option("请选择所属类别", 0))
+            for (option in data){
+                console.log(option)
+                select.options.add(new Option(data[option][0], data[option][1]))
+            }
+
+            select.options[0].selected = true
+            select.className="form-control"
+            select.setAttribute("data-level", level)
+            select.onchange=function(){
+                parent_id = this.options[this.selectedIndex].value
+                $(this).next().remove()
+                load_cate(parent_id)
+            }
+            category_select.appendChild(select)
+        }
+        function load_cate(parent_id=0) {
+
+            $.ajax({
+                url: "{{ url_for("admin.get_cate") }}?parent_id="+parent_id,
+                method: "get",
+                success: function (data) {
+                    if (data.length>0){
+                        createSelect(data)
+                    }
+
+                }
+
+            })
+        }
+
+	    function add_new_cate() {
+			name = $("#name").val()
+			order_id = $("#order_id").val()
+			cate_type = $("input[name='cate_type']:checked").val()
+			$.ajax({
+				url: "{{ url_for("admin.new_category") }}",
+				type: "post",
+				beforeSend:function(xhr){
+					xhr.setRequestHeader("X-CSRFToken", csrf_token)
+				},
+				data:{"parent_id":parent_id, "name":name, "order_id": order_id, "cate_type":cate_type},
+				success: function(data){
+					if (data == "ok") {
+						tips.innerHTML = "添加成功"
+					} else {
+						tips.innerHTML = data
+					}
+				}
+		    })
+
+	    }
+        btn.onclick = add_new_cate
+        window.onload=function(){
+            load_cate(0)
+            }
+
+	   </script>
+	{%  endblock %}
+

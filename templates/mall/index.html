@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+		<!-- 面包屑导航 -->
+<ul class="breadcrumb">
+			<li><a href="">平哥的店</a></li>
+			<li><a href="{{ current_module_url }}">{{ current_module }}</a></li>
+
+		</ul>
+		<!-- 分页导航 -->
+
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-2 hidden-xs hidden-sm">
+
+				</div>
+				<div class="col-md-6">
+					<!-- 媒体列表 -->
+					<ul class="media-list">
+						{% if goods_list %}
+                        	{% for goods in goods_list %}
+
+						<li class="media">
+							<a href="" class="pull-left">
+								<img src="/uploads/{{ goods.thumb }}"  class="media-object">
+							</a>
+							<div class="media-body">
+								<h4 class="media-heading"><a href="{{ url_for(".show_goods", category_id=goods.category_id, goods_id=goods.goods_id) }}">{{ goods.goods_title }}</a></h4>
+								<div class="media">
+									<p>{{ goods.price}}</p>
+
+								</div>
+							</div>
+						</li>
+
+					    	{% endfor %}
+						{% endif %}
+
+					</ul>
+
+					<!--  -->
+					<ul class="pagination">
+						{% for page in pageList %}
+                            {% if page!=None %}
+						<li><a href="{{ url_for('mall_module.index', page=page) }}">{{ page }}</a></li>
+                            {% else %}
+                            <li><a href="#">...</a></li>
+                            {% endif %}
+						{% endfor %}
+					</ul>
+				</div>
+
+			</div>
+		</div>
+{% endblock %}
+
+

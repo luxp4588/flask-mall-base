@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+
+
+{% block content %}
+<style type="text/css">
+
+			body{
+				margin:0;
+				padding-top: 70px;
+				background: #fff;
+			}
+     </style>
+    <div class="container-fluid clearfix">
+			<div class="row">
+                <div class="col-md-12">绑定已有用户</div>
+                <div class="col-md-12">
+<div class="form-group">
+
+{{ form.username.label }}
+
+{{ form.username(class="form-control")  }}
+</div>
+                    </div>
+                    <div class="col-md-12">
+                <div class="form-group">
+{{ form.password.label }}
+{{ form.password(class="form-control")  }}
+                </div>
+                    </div>
+                <div class="col-md-12">
+                <div class="form-group">
+<button type="button" class="btn btn-primary send-btn">确认绑定</button>
+                    <a href="{{ url_for('auth.register', next=url_for('wechat.wechat_bind')) }}" class="btn btn-primary">
+                        注册新账号
+                    </a>
+
+                </div>
+                    </div>
+            </div>
+</div>
+
+
+<script type="application/javascript" >
+    var csrf_token = "{{ csrf_token() }}"
+    $(function(){
+        $('.send-btn').on('click',function(){
+            $.ajax({
+                url:'{{ url_for('wechat.wechat_bind') }}',
+                type:'post',
+                data:{'username':$('#username').val(), 'password':$("#password").val()},
+                beforeSend:function(xhr){
+                xhr.setRequestHeader("X-CSRFToken", csrf_token)
+                },
+                success:function(data){
+                    alert(data)
+                }
+
+            })
+        })
+    })
+</script>
+{% endblock %}

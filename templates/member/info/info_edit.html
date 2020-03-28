@@ -1,0 +1,43 @@
+{% extends "member/member_base.html" %}
+<!DOCTYPE html>
+<html>
+
+	<body>
+	
+		{% block content %}
+		
+		<div class="container-fluid">
+			<div class="row">
+				
+				<div class="main col-md-12 col-lg-12 col-xs-12 col-sm-12" >
+
+						<h3>用户信息修改</h3>
+						 <div class="body">
+							<form action="" method="post">
+								
+							{%  for field in form %}
+
+                                {% if field.widget.input_type!="hidden" %}
+                                        <div class="form-group">
+                                            {{ field.label }}
+                                            {{ field }}
+                                        </div>
+                                    {% else %}
+                                        {{ field }}
+
+                                {% endif %}
+                            {% endfor %}
+
+							<div class="form-group">
+							<input class="btn" type="submit" name="submit" id="btn1" value="修改信息" />
+							<input class="btn" type="reset" name="reset" id="btn2" value="重设" />
+							</div>
+							</form>
+						 </div>
+				</div>
+			</div>
+		</div>
+
+	{%  endblock %}
+	</body>
+</html>

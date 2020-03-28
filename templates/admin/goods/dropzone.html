@@ -1,0 +1,9 @@
+{{ dropzone.config(custom_init='this.on("success", function(file, res) {
+                if( file.xhr.status == 200 ){
+                   pic_array.push(res.s)
+                }else{
+                    alert("上传失败");
+                }
+            });
+               '
+            ) }}

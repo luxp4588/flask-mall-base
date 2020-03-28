@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+    <div class="container h-100">
+        <div class="row h-100 page-header justify-content-center align-items-center">
+            <h1>Login - 平哥的店</h1>
+        </div>
+        <div class="row h-100 justify-content-center align-items-center">
+            <form action="" method="post" class="form col-6" role="form">
+                {{   form.csrf_token }}
+            <div class="form-group">
+                {{ form.username.label }}
+                {{ form.username(class='form-control') }}
+            </div>
+
+            <div class="form-group">
+                {{ form.password.label }}
+                {{ form.password(class='form-control') }}
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                {{ form.remember(class="form-check-input") }} Remember me
+</label>
+            </div>
+                <div class="form-group">
+                    <button class="btn btn-primary" type="submit">
+                        立即登陆
+                    </button>
+                </div>
+                </form>
+
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block footer %}{% endblock %}

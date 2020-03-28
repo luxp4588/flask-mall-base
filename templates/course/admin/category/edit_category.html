@@ -1,0 +1,70 @@
+
+{% block title %}{% endblock %}
+<style>
+
+</style>
+{% block content %}
+
+    <div class="row">
+        <div class="col-md-6">
+            <div id="tips"></div>
+            <div class="form-group" id="category_select">
+
+            </div>
+            <div class="form-group">
+                {{ form.name.label }}
+                {{ form.name(class="form-control") }}
+            </div>
+            <div class="radio">
+                {% for radio in form.cate_type %}
+                    <label class="radio-inline">
+                      {{ radio }}{{ radio.data }}
+                    </label>
+                {% endfor %}
+            </div>
+
+
+            <div class="form-group">
+                {{ form.order_id.label }}
+                {{ form.order_id(class="form-control") }}
+
+            </div>
+            <div class="form-group">
+                <button class="form-control edit-confirm-btn">确认修改</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="text/javascript">
+        var edit_url   = "{{ request.full_path  }}"
+        var csrf_token = "{{ csrf_token() }}"
+        var category_select = document.getElementById("category_select")
+        var parent_id  = {{ form.parent_id.data }}
+        var tips       = document.getElementById("tips")
+        function edit_cate() {
+            name = $("#name").val()
+            order_id = $("#order_id").val()
+            cate_type = $("input[name='cate_type']:checked").val()
+            $.ajax({
+                url: edit_url,
+                type: "post",
+                beforeSend:function(xhr){
+                    xhr.setRequestHeader("X-CSRFToken", csrf_token)
+                },
+                data:{"parent_id":parent_id, "name":name, "order_id":order_id, "cate_type":cate_type},
+                success: function(data){
+                    if (data == "success") {
+                        tips.innerHTML = "修改成功"
+                        {#$(".mainbody").html(data)#}
+                    }
+                }
+            })
+
+        }
+        $(".edit-confirm-btn").on('click',edit_cate)
+
+    </script>
+    <script type="text/javascript" src="{{ url_for( 'static', filename='js/category.js') }}"></script>
+
+{% endblock %}

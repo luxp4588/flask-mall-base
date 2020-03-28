@@ -1,0 +1,124 @@
+{%  extends "base.html" %}
+{% block title -%}
+    -{{ goods.title }}
+{% endblock %}
+{% block style %}
+		<style type="text/css">
+
+			body{
+				margin:0;
+				padding-top: 70px;
+				background: #fff;
+			}
+            h1{font-size: 24px;}
+			.main{
+				min-height: 200px;
+				color: #666;
+				float:left;
+			}
+			.goods_info{
+			    float:left;
+			    margin-left:15px;
+
+			}
+			.eyes img {
+               width: 400px;
+               height: 350px;
+			}
+		    .thumbs{
+                margin-top:5px;
+		        width:400px;
+		        display:flex;
+		        flex-direction: row;
+		        flex-wrap: nowrap;
+		    }
+            .thumbs img {
+                padding:0 5px;
+                width: 50px;
+                height: 50px;
+            }
+            .detail {
+                padding-top: 18px;
+            }
+
+
+
+		</style>
+{% endblock %}
+
+{% block content %}
+    <div class="container clearfix">
+        <div class="row">
+            <div class="main">
+                <div class="eyes">
+                    <img src="/uploads/{{ goods.thumb }}" alt="">
+                </div>
+                <div class="thumbs">
+                    
+                </div>
+            </div>
+            <div class="goods_info">
+                <h1>{{ goods.goods_title }}
+                    <small>{{ goods.subhead }}</small>
+                </h1>
+                <p>优惠价：{{ goods.price }}</p>
+                <span class="float-left">
+                    <button class="btn btn-primary cart-btn" >加入购物车</button>
+                </span>
+
+            </div>
+
+
+    </div>
+
+    <div class="row">
+        <hr />
+        <nav>
+			<ul class="nav nav-tabs">
+				<li class="active"><a href="">商品详情</a></li>
+				<li><a href="">商品规格</a></li>
+				<li><a href="">商品评论</a></li>
+
+			</ul>
+		</nav>
+        <div class="detail">
+
+        {{ goods.detail |safe }}
+        </div>
+    </div>
+
+</div>
+<script>
+    csrf_token = '{{ csrf_token() }}'
+    pic_array = {{ goods.main_pic | safe }}
+    $(function(){
+       pic_array.forEach(function(obj){
+           img = $("<img src='/uploads/"+obj+"' />")
+           $(".thumbs").append(img)
+       })
+
+       $(".thumbs").on("click",function(e){
+            $(".eyes>img")[0].src = e.target.src.slice(0,-6)+"_m.jpg"
+
+       })
+
+       // 添加到购物车
+       $(".cart-btn").on("click", function(){
+           $.ajax({
+               url: "{{ url_for("member.add_cart", goods_id=goods.goods_id) }}",
+               type: "post",
+               beforeSend:function(xhr){
+                xhr.setRequestHeader("X-CSRFToken", csrf_token)
+               },
+               dataType: "json",
+               success: function(data){
+                    if (data.result){
+                       alert("添加成功")
+                    }
+               }
+           })
+
+       })
+    })
+</script>
+{% endblock %}

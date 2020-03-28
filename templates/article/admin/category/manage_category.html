@@ -1,0 +1,189 @@
+
+{% from 'bootstrap/form.html' import render_form %}
+<style>
+
+    .btn-info{
+        display: inline-block;
+    }
+    .inline{
+        display: inline;
+    }
+    td>p {
+        height: 30px;
+        line-height:30px;
+    }
+    .cate_name>a {
+        display: inline-block;
+        height: 40px;
+        line-height: 40px
+    }
+    .radio-line li {
+        float: left
+    }
+
+</style>
+{% block title %}<div class="page-header">
+        <h1>分类管理
+            <small class="text-muted">{{ categories|length }}</small>
+        </h1>
+    </div>{% endblock %}
+
+{% block content %}
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="exampleModalLabel">类别修改</h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+
+</div>
+</div>
+    {% if categories %}
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>No.</th>
+                <th>Name</th>
+                <th>Posts</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            {% for category in categories %}
+                <tr>
+                    <td>{{ loop.index }}<input type="checkbox" name="del_id" value="{{ category.id }}" /></td>
+                    <td class="cate_name"><a href="{{ url_for('article.category_'+category.cate_type, category_id=category.id) }}" target="_blank">{{ category.name }}</a>
+                    </td>
+                    <td ><p> {% if category.sub_cates %}
+                                  <a class="btn btn-default btn-sm into_subcate" href="javascript:;"
+                               data-href="{{ url_for('article.manage_category', parent_id=category.id) }}">查看子类</a>
+                            {% else %}
+                                {{ category.posts|length }}
+                            {% endif %}</p></td>
+                    <td>
+{#                        {% if category.id != 1 %}#}
+
+                            <button class="btn btn-info btn-sm edit-btn" data-toggle="modal" data-target="#editModal"
+                               data-href="{{ url_for('article.edit_category', category_id=category.id) }}">Edit</button>
+
+
+                                <button type="button" class="btn btn-danger btn-sm delete-btn"
+                                        onclick="return confirm('Are you sure?');" data-href="{{ url_for('article.delete_category', category_id=category.id) }}">Delete
+                                </button>
+{#                        {% endif %}#}
+                    </td>
+
+                </tr>
+            {% endfor %}
+
+<tr><td colspan="4">
+                    <input type="button"  class="btn btn-primary all" value="全部选中" />
+                    <input type="button" class="btn btn-primary del-all" value="删除选中">
+                </td></tr>
+        </table>
+        <p class="text-muted"></p>
+    {% else %}
+        <div class="tip"><h5>没有分类</h5></div>
+    {% endif %}
+    <script type="text/javascript">
+        var csrf_token = "{{ csrf_token() }}"
+        $(function(){
+             $(".into_subcate").on("click",function(event){
+                var target = $(event.target);
+                url = $(this).attr("data-href")
+                {#console.log("ok")#}
+                $(".mainbody").load(url)
+
+
+            })
+         })
+$(function(){
+             $(".edit-btn").on("click",function(event){
+                var target = $(event.target);
+                url = $(this).attr("data-href")
+                {#console.log("ok")#}
+                $(".modal-body").load(url)
+
+
+            })
+         })
+
+
+/**
+ * 全部选中与取消
+ */
+ $(function(){
+     $(".all").on('click', function(event){
+         console.log("ok")
+       if ($("input[name='del_id']").is(":checked")) {
+           $("input[name='del_id']").removeAttr("checked");
+       } else {
+           $("input[name='del_id']").attr("checked", "true");
+        }
+
+     })
+
+ })
+/**
+ * 删除
+ *
+ */
+
+$(function(){
+     $(".delete-btn").on("click",function(event){
+        var target = $(event.target);
+        url = $(this).attr("data-href")
+        {#console.log("ok")#}
+        $.ajax({
+            url: url,
+            type: "post",
+            beforeSend: function(xhr){
+                 xhr.setRequestHeader("X-CSRFToken", csrf_token)
+            },
+            data: {},
+            success: function(data){
+                if (data=="ok")
+                 {
+                    console.log(target.parent().parent().remove())
+                 }
+            },
+
+        })
+    })
+})
+
+/**
+ * 全部删除
+ */
+$(function() {
+    $(".del-all").on("click", function(){
+        var checkID =[]
+        $("input[name='del_id']:checked").each(function (i) {
+            checkID[i] = $(this).val();
+        })
+        console.log(checkID)
+        $.ajax({
+            url: '{{ url_for("article.batch_delete_category") }}',
+            type: "post",
+            data: {'checkID':checkID},
+            beforeSend:function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token)
+
+            },
+            success:function(data){
+                $(".mainbody").load("{{ request.full_path }}")
+            }
+        })
+
+    })
+
+})
+    </script>
+
+{% endblock %}

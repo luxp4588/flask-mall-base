@@ -1,0 +1,115 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}添加商品{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for("static", filename="css/dropzone.min.css") }}">
+{{ dropzone.load_css() }}
+{{ dropzone.load_js() }}
+{{ dropzone.style('margin: 0 0;padding:0; border: 2px dashed #0087F7; width:100%;height: 150px;') }}
+<style>
+       .price .form-control{width:30%;display:inline-block}
+       .row .cke_chrome{
+               padding:1px;
+            }
+
+</style>
+<div class="container">
+    <div class="row">
+        <div class="main col-md-12 col-lg-12 col-xs-12 col-sm-12" >
+
+            <h3>添加商品 - <small>
+                <a href="{{ url_for("admin.manage_goods") }}">商品管理</a> </small>
+            </h3>
+            <div id="tips"></div>
+            <div class="form-group" id="category_select"></div>
+            <div class="form-group">
+                {{ form.title.label }}
+                {{ form.title(class="form-control") }}
+            </div>
+            <div class="form-group price">
+                {{ form.price.label }}
+                {{ form.price(class="form-control") }}元
+            </div>
+
+            <div class="form-group">
+                {{ form.thumb.label }}
+                {{ form.thumb }}
+                {{ dropzone.create(action="admin.upload_thumb") }}
+            </div>
+
+
+            <div class="form-group">
+
+                {{ form.body.label }}
+
+                {{ form.body }}
+            </div>
+
+
+            <div class="form-group">
+                <button class="btn btn-primary">添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename="ckeditor/ckeditor.js") }}"></script>
+
+    {% include "admin/goods/dropzone.html" %}
+    {{ ckeditor.config(name='body', height=500, toolbar="full") }}
+
+
+<script type="text/javascript">
+    var pic_array = []
+    var add_url = "{{ url_for('admin.new_goods') }}"
+    var csrf_token = "{{ csrf_token() }}"
+    var category_select = $("#category_select")
+    var parent_id = 0
+    var tips = $("#tips")
+
+    function add_new_goods() {
+        cate_id = parent_id
+        title = $('#title').val()
+        price = $('#price').val()
+        thumb = pic_array[0]
+        main_pic = JSON.stringify(pic_array)
+        body  = CKEDITOR.instances["body"].getData()
+
+        $.ajax({
+            url: add_url,
+            type: "post",
+            beforeSend:function(xhr){
+                xhr.setRequestHeader("X-CSRFToken", csrf_token)
+            },
+            data:{"title": title,"price":price,
+                  "category": cate_id, "body": body,
+                  'thumb': thumb, 'main_pic':main_pic},
+            dataType: "json",
+            success: function(data){
+                if (data.goods_id) {
+                    tips.html("添加成功" + data.goods_id)
+                    $('#title').val("")
+                    pic_array=[]
+                    CKEDITOR.instances["body"].setData()
+                    $(".dz-preview").remove()
+                } else {
+                    errors = ""
+                    for (error in data){
+                       errors += error+"<br>"
+                    }
+                    tips.html("添加失败" + errors)
+                }
+            }
+        })
+    }
+
+    $(function(){
+       // var myDropzone = new Dropzone("#myDropzone",{})
+        $('.btn').on('click', add_new_goods)
+        category_url = "{{ url_for("admin.get_cate") }}"
+        load_cate(0)
+    })
+
+</script>
+<script type="text/javascript" src="{{ url_for("static" ,filename="js/category.js") }}"></script>
+{% endblock %}

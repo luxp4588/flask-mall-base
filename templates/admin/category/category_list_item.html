@@ -1,0 +1,18 @@
+{% macro category_items(cates) %}
+
+    {% for cate in cates %}
+        <li class="cate_li" id="li_{{ cate.id }}">{{ cate.name }}
+            <a class="edit-btn"
+               href="{{ url_for('.edit_category', category_id=cate.id) }}">Edit</a>
+            <a class="delete-btn"
+               href="javascript:delete_cate({{ cate.id }})" >Delete
+                                </a>
+            {% if cate.sub_cates %}
+                <ul>
+                    {{ category_items(cate.sub_cates) }}
+                </ul>
+            {% endif %}
+        </li>
+
+   {% endfor %}
+{% endmacro %}

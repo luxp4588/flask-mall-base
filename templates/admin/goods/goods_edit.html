@@ -1,0 +1,133 @@
+{% extends "admin/admin_base.html" %}
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for("static", filename="css/dropzone.min.css") }}">
+{{ dropzone.load_css() }}
+{{ dropzone.load_js() }}
+{{ dropzone.style('margin: 20px 0; border: 2px dashed #0087F7; height: auto;') }}
+<style>
+    #pre_ul{
+       overflow:hidden
+    }
+    #pre_ul li{
+        position: relative;
+        list-style-type:none;
+        float: left;
+     }
+
+    #pre_ul li img {
+        width: 100px;
+    }
+    #pre_ul li>span{
+      position: absolute;
+      left: 30px;
+      bottom: 10px;
+      display:block;
+      background:#666;
+      opacity:0.8;
+      padding:10px;
+      color: #fff;
+      cursor: hand;
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="main col-md-12 col-lg-12 col-xs-12 col-sm-12" >
+             <h3>修改商品 - <small><a href="{{ url_for("admin.manage_goods") }}">商品列表</a> </small></h3>
+
+            <div class="form-group" id="category_select"></div>
+            <div class="form-group">
+                当前商品分类为: {{ current_cate }}
+            </div>
+            <div class="form-group">
+                {{ form.title.label }}
+                {{ form.title(class="form-control") }}
+            </div>
+
+            <div class="form-group">
+                {{ form.price.label }}
+                {{ form.price(class="form-control") }}
+            </div>
+
+            <div class="form-group">
+                <ul id="pre_ul">
+
+                </ul>
+                {{ form.thumb.label }}
+                {{ form.thumb }}
+                {{ dropzone.create(action="admin.upload_thumb") }}
+            </div>
+
+
+            <div class="form-group">
+                <label for="body" class="control-label">内容:</label>
+                {{ form.body(class="form-controle") }}
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary edit-btn">确认修改</button>
+            </div>
+        </div>
+    </div>
+ </div>
+<script type="text/javascript" src="{{ url_for('static', filename="ckeditor/ckeditor.js") }}"></script>
+
+    {% include "admin/goods/dropzone.html" %}
+    {{ ckeditor.config(name='body', height=500, toolbar="Full") }}
+
+<script type="text/javascript">
+    var csrf_token = "{{ csrf_token() }}"
+    var parent_id = {{ form.category.data }}
+    var pic_array = {{ thumbs|safe }}
+    $(function(){
+        category_url = "{{ url_for("admin.get_cate") }}"
+        load_cate(0)
+        pic_array.forEach(function(obj, index){
+            img =  $("<li><img src='/uploads/"+obj+"'/><span data-index="+index+">删除</span></li>")
+            $("#pre_ul").append(img)
+        })
+
+        $("#pre_ul").on("click","span", function(e){
+             pic_array[$(this).data("index")] = null
+             $(this).parent().remove()
+
+        })
+
+        function edit_goods() {
+            pic_array = pic_array.filter(function(obj){return obj})
+            cate_id = parent_id
+            title = $('#title').val()
+            price = $("#price").val()
+            thumb = pic_array[0]
+            main_pic = JSON.stringify(pic_array)
+            body  = CKEDITOR.instances["body"].getData()
+
+            $.ajax({
+                url: "",
+                type: "post",
+                beforeSend:function(xhr){
+                    xhr.setRequestHeader("X-CSRFToken", csrf_token)
+                },
+                data:{"title":title,
+                      "price":price,
+                      "category":cate_id,
+                      "body":body,
+                      "thumb":thumb,
+                      "main_pic":main_pic},
+                dataType: "text",
+                success: function(data){
+                     document.location.reload()
+                }
+            })
+
+        }
+        $('.edit-btn').on('click', edit_goods)
+
+    })
+
+
+</script>
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/category.js') }}"></script>
+{% endblock %}

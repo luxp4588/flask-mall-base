@@ -1,0 +1,88 @@
+{%  extends "member/member_base.html" %}
+{% block title -%}
+    - 创建订单
+{% endblock %}
+{% block style %}
+
+      body{
+				margin:0;
+				padding-top: 70px;
+				background: #fff;
+			}
+      .price{
+          color: #ff1c1c;
+      }
+{% endblock %}
+{% block content %}
+
+<div class="container clearfix">
+    <div class="panel panel-default">
+        <div class="panel-heading">订单创建</div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12">
+                    {% for cart in cart_list %}
+                    <div class="media">
+                        <div class="media-left">
+                            <a href="#">
+                              <img class="media-object"  src="/uploads/{{ cart.goods.thumb }}" >
+                            </a>
+                        </div>
+                        <div class="media-body">
+                            <h4 class="media-heading">
+                                {{ cart.goods.goods_title }}
+                            </h4>
+
+                            <p>平哥优价：<span class="price">{{ cart.goods.price }}</span>元
+                            </p>
+                            <p>购买数量：{{ cart.amount }} 件 <a href="{{ url_for('member.cart_list') }}">返回购物车</a></p>
+
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <hr>
+                    订单总价:{{ total_price }}元
+                    <hr>
+                    <form action="{{ url_for("member.create_order") }}" id="order_form" method="post">
+
+                        <div class="form-group">
+                            {{ form.receiver.label }}
+                            {{ form.receiver(class="form-control") }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.mobile.label }}
+                            {{ form.mobile(class="form-control") }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.address.label }}
+                            {{ form.address(class="form-control") }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.payment }}
+                            {{ form.csrf_token }}
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 pull-right">
+            <button type="button" class="btn btn-primary alipay-btn" data-payment="alipay">支付宝</button>
+            <button type="button" class="btn btn-primary wxpay-btn" data-payment="wxpay">微信支付</button>
+        </div>
+    </div>
+</div>
+
+    <script>
+        $('.btn').on('click', function(){
+        console.log("click")
+            $("[name='payment']").val($(this).data('payment'))
+            $("#order_form").submit()
+        })
+
+
+
+    </script>
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends "member/member_base.html" %}
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="main col-md-12 col-lg-12 col-xs-12 col-sm-12" >
+        <h3>我的订单</h3>
+        <div class="page-header">
+            <form action="{{ url_for("member.manage_orders",page=1) }}"  method="get" class="form-horizontal"  id="search_form">
+                <div class="form-group">
+                    {{ form.keyword.label }}
+                    {{ form.keyword(class="form-control") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.order_type.label }}
+                    {{ form.order_type }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.status.label }}
+                    {{ form.status }}
+                </div>
+
+                <div class="form-group ">
+
+                    <input type="button" name="search" class="btn btn-primary pull-right search-btn" value="立即搜索">
+                </div>
+
+            </form>
+
+            <h3>订单总数
+                <small class="text-muted">{{ pagination.total }}</small>
+            </h3>
+        </div>
+{% if pagination.total > 0 %}
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>订单号</th>
+                <th>订单标题</th>
+                <th>订单创建时间</th>
+                <th>订单状态</th>
+            </tr>
+            </thead>
+            {% for order in pagination.items %}
+            <tr>
+                <td>{{ order.order_no }} </td>
+                <td><a href="" target="_blank">{{ order.subject }}</a></td>
+                <td><a href="">{{ order.createTime }}</a></td>
+                <td>{% if order.status != "0" %}
+                       {{ order.status | get_order_status }}
+                    {% else %}
+                      <a href="{{ url_for("member.pay_order",order_no=order.order_no)}}">立即付款</a>
+                    {% endif %}
+                </td>
+                <td>
+                    <a class="btn btn-info btn-sm edit-btn"  href="" target="_blank">发货</a>
+
+
+                </td>
+            </tr>
+            {% endfor %}
+
+        </table>
+        <div class="page-footer">
+            <ul class="pagination">
+                {% for page in pagination.iter_pages() %}
+                    {% if page!=None %}
+                <li><a href="{{ url_for("member.manage_orders", page=page) }}?{{ condition }}">{{ page }}</a></li>
+                    {% else %}
+                    <li><a href="#">...</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% else %}
+        <div class="tip"><h5>暂无订单</h5></div>
+    {% endif %}
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+/**
+ * 修改
+ */
+var csrf_token = "{{ csrf_token() }}"
+var parent_id = 0
+
+
+$(function(){
+     $(".search-btn").on("click", function(event){
+            if (!$("#category_id").val()){
+                $("#category_id").val(parent_id)
+            }
+            $("#search_form").submit()
+        })
+ })
+
+
+
+/**
+ * 删除
+ *
+ */
+$(function(){
+     $(".delete-btn").on("click",function(event){
+        var target = $(event.target);
+        url = $(this).attr("data-href")
+        {#console.log("ok")#}
+        $.ajax({
+            url: url,
+            type: "post",
+            beforeSend: function(xhr){
+                 xhr.setRequestHeader("X-CSRFToken", csrf_token)
+            },
+            data: {},
+            success: function(data){
+                if (data=="ok")
+                 {
+                    console.log(target.parent().parent().remove())
+                 }
+            },
+
+        })
+    })
+})
+
+
+
+
+
+/**
+ * 检索
+ */
+$("#search").on('click', function(){
+    link_url = "{{ url_for(".manage_orders") }}/"+parent_id
+
+    $(".mainbody").load($.trim(link_url))
+
+})
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% block head %}
+    <head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <link rel="stylesheet" type="text/css" href="{{ url_for("static", filename="css/bootstrap.css") }}"/>
+	    <link rel="stylesheet" type="text/css" href="{{ url_for("static", filename="css/bootstrap-theme.css") }}"/>
+		<style type="text/css">
+			body{
+				padding-top: 52px;
+			}
+			.media a>img{
+				width: 120px;
+
+			}
+			#left_menu>li{
+				width:100%;
+			}
+			.hot_articles .list-group{
+				box-shadow: 0 0 0;
+			}
+			.hot_articles .list-group-item{
+				border: 0;
+				padding-left: 0;
+			}
+			footer{
+				padding: 15px;
+				background: #333;
+				text-align: center;
+				color: #fff;
+			}
+			footer nav{
+				margin: auto;
+				width: 300px;
+			}
+            {% block style %}
+
+                {% endblock %}
+		</style>
+<script type="text/javascript" src="{{ url_for("static" ,filename="js/jquery-3.2.1.js") }}"></script>
+	</head>
+{%  endblock %}
+
+{%  block nav %}
+      <nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
+
+			<!-- 手机屏幕显示 -->
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse"
+				 data-target="#navmenu">
+					<span class="sr-only">展开导航</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+
+				</button>
+				<a href="" class="navbar-brand">平哥编程</a>
+			</div>
+			<div class="collapse navbar-collapse" id="navmenu">
+				<!-- 必须设置 navbar-nav-->
+
+				<ul class="nav navbar-nav" >
+					   <li class="active"><a href="{{ url_for("index") }}">返回网站首页</a></li>
+
+                        {# <li><a href="{{ url_for("admin.userList") }}">用户管理</a></li>
+					#}
+                        <li><a href="{{ url_for("admin.manage_category") }}">分类管理</a></li>
+						<li><a href="{{ url_for("admin.manage_goods") }}">商品管理</a></li>
+						<li><a href="{{ url_for("admin.manage_orders") }}">订单管理</a></li>
+                </ul>
+
+                <ul class="nav navbar-nav pull-right">
+                       <li><a href="#">{{ username }}</a></li>
+                       <li><a href="{{ url_for("member.logout") }}">logout</a></li>
+                </ul>
+
+			</div>
+		</nav>
+
+{% endblock %}
+
+{% block content %}
+    管理框架
+{%  endblock %}
+
+{% block footer %}
+          <footer>
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-md-12">
+						网易微专业Python全栈课程&copy;2019版权所有
+					</div>
+				</div>
+			</div>
+			<nav >
+				<ul class="nav nav-pills   ">
+					<li><a href="">关于网易</a></li>
+					<li><a href="">网易微专业</a></li>
+					<li><a href="">关于平哥</a></li>
+				</ul>
+			</nav>
+		</footer>
+
+		<script type="text/javascript" src="{{ url_for("static" ,filename="js/bootstrap.js") }}"></script>
+{% endblock %}

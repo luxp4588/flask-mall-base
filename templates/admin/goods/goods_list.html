@@ -1,0 +1,184 @@
+{% extends "admin/admin_base.html" %}
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="main col-md-12 col-lg-12 col-xs-12 col-sm-12" >
+        <h3>商品管理 - <small><a href="{{ url_for("admin.new_goods") }}">添加商品</a> </small></h3>
+        <div class="page-header">
+            <form action="{{ url_for("admin.manage_goods",page=1) }}"  method="get" class="form-horizontal"  id="search_form">
+                <div class="form-group" id="category_select"></div>
+                <div class="form-group">
+                    {{ form.keyword.label }}
+                    {{ form.keyword }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.order_type.label }}
+                    {{ form.order_type }}
+                </div>
+
+                <div class="form-group ">
+                    {{ form.category_id }}
+                    <input type="button" name="search" class="btn btn-primary pull-right search-btn" value="立即搜索">
+                </div>
+
+            </form>
+
+            <h3>商品总数
+                <small class="text-muted">{{ pagination.total }}</small>
+            </h3>
+        </div>
+{% if pagination.total > 0 %}
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>编号</th>
+                <th>商品名称</th>
+                <th>所属分类</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            {% for goods in pagination.items %}
+            <tr>
+                <td>{{ loop.index + ((page - 1) * config.XPMALL_MANAGE_GOODS_PER_PAGE) }}<input type="checkbox" name="del_id" value="{{ goods.goods_id }}" /></td>
+                <td><a href="{{ url_for('mall.show_goods', category_id=goods.category_id, goods_id=goods.goods_id) }}" target="_blank">{{ goods.goods_title }}</a></td>
+                <td><a href="{{ url_for('admin.manage_goods', category_id=goods.category_id) }}">{{ goods.category.name }}</a>
+                </td>
+                <td>
+                    <a class="btn btn-info btn-sm edit-btn"  href="{{ url_for('.edit_goods', goods_id=goods.goods_id) }}" target="_blank">修改</a>
+                    <button type="submit" class="btn btn-danger btn-sm delete-btn" onclick="return confirm('Are you sure?');" data-href="{{ url_for('.delete_goods', goods_id=goods.goods_id)}}">删除
+                    </button>
+
+                </td>
+            </tr>
+            {% endfor %}
+        <td colspan="4">
+                            <input type="button"  class="btn btn-primary all" value="全部选中" />
+                            <input type="button" class="btn btn-primary del-all" value="删除选中">
+                        </td>
+        </table>
+        <div class="page-footer">
+            <ul class="pagination">
+                {% for page in pagination.iter_pages() %}
+                    {% if page!=None %}
+                <li><a href="{{ url_for("admin.manage_goods", page=page) }}?{{ condition }}">{{ page }}</a></li>
+                    {% else %}
+                    <li><a href="#">...</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% else %}
+        <div class="tip"><h5>暂无商品</h5></div>
+    {% endif %}
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+/**
+ * 修改
+ */
+var csrf_token = "{{ csrf_token() }}"
+var parent_id = 0
+
+
+$(function(){
+     $(".search-btn").on("click", function(event){
+            if (!$("#category_id").val()){
+                $("#category_id").val(parent_id)
+            }
+            $("#search_form").submit()
+        })
+ })
+
+
+
+/**
+ * 删除
+ *
+ */
+$(function(){
+     $(".delete-btn").on("click",function(event){
+        var target = $(event.target);
+        url = $(this).attr("data-href")
+        {#console.log("ok")#}
+        $.ajax({
+            url: url,
+            type: "post",
+            beforeSend: function(xhr){
+                 xhr.setRequestHeader("X-CSRFToken", csrf_token)
+            },
+            data: {},
+            success: function(data){
+                if (data=="ok")
+                 {
+                    console.log(target.parent().parent().remove())
+                 }
+            },
+
+        })
+    })
+})
+
+/**
+ * 全部选中与取消
+ */
+ $(function(){
+     $(".all").on('click', function(event){
+       if ($("input[name='del_id']").is(":checked")) {
+           $("input[name='del_id']").removeAttr("checked");
+       } else {
+           $("input[name='del_id']").attr("checked", "true");
+        }
+
+     })
+
+ })
+
+/**
+ * 全部删除
+ */
+$(function() {
+    $(".del-all").on("click", function(){
+        var checkID =[]
+        $("input[name='del_id']:checked").each(function (i) {
+            checkID[i] = $(this).val();
+        })
+        console.log(checkID)
+        $.ajax({
+            url: '{{ url_for(".batch_delete_goods") }}',
+            type: "post",
+            data: {'checkID':checkID},
+            beforeSend:function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token)
+
+            },
+            success:function(data){
+                document.location.reload()
+            }
+        })
+
+    })
+
+})
+
+
+/**
+ * 检索
+ */
+$("#search").on('click', function(){
+    link_url = "{{ url_for(".manage_goods") }}/"+parent_id
+
+    $(".mainbody").load($.trim(link_url))
+
+})
+
+$(function () {
+category_url = "{{ url_for("admin.get_cate") }}"
+    load_cate(0)
+})
+</script>
+<script type="text/javascript" src="{{ url_for("static" ,filename="js/category.js") }}"></script>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %} 登陆 {% endblock %}
+{% block content %}
+    <div class="row text-center vertical-middle-sm" class="form-horizontal" action="{% url 'user_login'  %}">
+    <h1>登陆</h1>
+        <form action="" method="post">
+        {% csrf_token %}
+{#    {{ login_form.as_ul }}#}
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}" class="col-md-5 control-label" style="red">
+                    <span class="glyphicon glyphicon-user">用户名：</span>
+                </label>
+                <div class="col-md-6 text-left">{{ login_form.username }}</div>
+            </div>
+            <div class="form-group">
+                <label for="{{ form.password.id_for_label }}" class="col-md-5 control-label">
+                    <span class="glyphicon glyphicon-floppy-open">密码:</span>
+                </label>
+                <div class="col-md-6 text-left">{{ login_form.password }}</div>
+            </div>
+           <div class="form-group">
+               <div class="col-md-5"></div>
+               <div class="col-md-6 text-left" >
+                <input type="submit" class="btn btn-primary" value="submit">
+               </div>
+           </div>
+        </form>
+    </div>
+{% endblock %}

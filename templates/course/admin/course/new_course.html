@@ -1,0 +1,108 @@
+
+<link rel="stylesheet" href="{{ url_for("static", filename="css/dropzone.min.css") }}">
+{{ dropzone.style('margin: 20px 0; border: 2px dashed #0087F7; min-height: 400px;') }}
+{% block content %}
+    <div class="page-header">
+        <h1>发布新课程</h1>
+    </div>
+    <div id="tips"></div>
+    <div class="form-group" id="category_select"></div>
+    <div class="form-group">
+        {{ form.title.label }}
+        {{ form.title(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.order_id.label }}
+        {{ form.order_id(class="form-control") }}
+    </div>
+    <div class="form-group">
+
+        {{ form.thumb }}
+        {{ dropzone.create(action="course.course_upload_thumb") }}
+    </div>
+    <div class="form-group">
+        {{ form.intro.label }}
+        {{ form.intro(class="form-control") }}
+    </div>
+    </div>
+    <div class="form-group">
+
+        {{ form.body.label }}
+
+        {{ form.body }}
+    </div>
+
+    <div class="form-group">
+        {{ form.tags.label }}
+        {{ form.tags(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.price.label }}
+        {{ form.price(class="form-control") }}
+    </div>
+    <div class="form-group">
+        <button class="btn btn-primary">添加</button>
+    </div>
+
+{% endblock %}
+<script type="text/javascript" src="{{ url_for('static', filename="ckeditor/ckeditor.js") }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/category.js') }}"></script>
+
+    {{ dropzone.config(custom_init='this.on("success", function(file, res) {
+                if( file.xhr.status == 200 ){
+                   $("#thumb").val(res.file)
+                }else{
+                    alert("上传失败");
+                }
+            });
+               '
+            ) }}
+    {{ ckeditor.config(name="intro", toolbar="Basic") }}
+    {{ ckeditor.config(name='body', height=500, toolbar="full", file_uploader='course.course_upload_image') }}
+
+
+<script type="text/javascript">
+    var add_url = "{{ url_for('.new_course') }}"
+    var category_url = " {{ url_for('.get_cate') }}"
+    var csrf_token = "{{ csrf_token() }}"
+    var category_select = document.getElementById("category_select")
+    var parent_id = 0
+    var tips = $("#tips")
+
+    function add_new_post() {
+        cate_id = parent_id
+        title = $('#title').val()
+        thumb = $('#thumb').val()
+        order_id = $('#order_id').val()
+        intro = CKEDITOR.instances["intro"].getData()
+        body  = CKEDITOR.instances["body"].getData()
+        tags = $("#tags").val()
+
+        price = $('#price').val()
+
+        $.ajax({
+            url: add_url,
+            type: "post",
+            beforeSend:function(xhr){
+                xhr.setRequestHeader("X-CSRFToken", csrf_token)
+            },
+            data:{"title": title, "category": cate_id, "body": body, "intro": intro, 'thumb': thumb,
+            "tags": tags, "order_id": order_id, 'price':price},
+            dataType: "json",
+            success: function(data){
+                tips.html("添加成功" + data.course_id)
+                $('#title').val("")
+                $('#thumb').val("")
+                CKEDITOR.instances["intro"].setData()
+                CKEDITOR.instances["body"].setData()
+                $(".dz-preview").remove()
+            }
+        })
+    }
+    $('.btn').on('click', add_new_post)
+    $(function(){
+        var myDropzone = new Dropzone("#myDropzone",{})
+        load_cate(0)
+    })
+
+</script>

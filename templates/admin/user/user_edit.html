@@ -1,0 +1,82 @@
+{% extends "admin/admin_base.html" %}
+<!DOCTYPE html>
+<html>
+
+	<body>
+	
+		{% block content %}
+		
+		<div class="container-fluid">
+			<div class="row">
+				
+				<div class="main col-md-12 col-lg-12 col-xs-12 col-sm-12" >
+
+						<h3>用户信息修改</h3>
+						 <div class="body">
+
+                             <div class="alert alert-info" id="message" role="alert"></div>
+						      {%  for field in form %}
+
+                                {% if field.widget.input_type!="hidden" %}
+                                        <div class="form-group">
+                                            {{ field.label }}
+                                            {{ field }}
+                                        </div>
+                                    {% else %}
+                                        {{ field }}
+
+                                {% endif %}
+                            {% endfor %}
+
+							<div class="form-group">
+							<input class="btn" type="button" name="submit" id="btn1" value="修改信息" />
+							<input class="btn" type="reset" name="reset" id="btn2" value="重设" />
+							</div>
+
+						 </div>
+
+				</div>
+			</div>
+		</div>
+            <script>
+                window.onload=function() {
+                    $("#btn1").on("click", function () {
+                        name = $("#name").val()
+                        sex = $('[name=sex]:checked').val()
+                        like = []
+
+                        $('[name=like]:checked').each(
+                            function (index, item) {
+                                like.push($(item).val())
+                            }
+                        )
+
+                        city = $('[name=city]').val()
+                        intro = $('[name=intro]').val()
+                        data = {
+                            name: name,
+                            sex: sex,
+                            like: like,
+                            city: city,
+                            intro: intro
+
+                        }
+
+                        $.ajax({
+                            type: "post",
+                            url: '{{ url_for("admin_app.editUser", user_id=user_id) }}',
+                            data: data,
+                            dataType: "json",
+                            beforeSend:function(xhr){
+                                xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token()}}')
+                            },
+                            success: function (data) {
+                                if (data.res == "success") {
+                                    $("#message").html("修改成功<a href='javascript:window.close()'>关闭</a>")
+                                }
+                            }
+                        })
+                    })
+                }
+            </script>
+	{%  endblock %}

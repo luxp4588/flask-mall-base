@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title -%}
+{{ super() -}}
+   -{{ category.name }}
+{% endblock %}
+{% from 'bootstrap/pagination.html' import render_pagination %}
+{% block current_page_style %}
+		<style type="text/css">
+			body{
+				margin:0;
+				padding-top: 70px;
+				background: #fff;
+			}
+            h1{font-size: 24px;}
+            h2{font-size: 18px;}
+            h3{font-size: 14px;}
+			.navbar-default{
+				/* background: #505050; */
+			}
+			nav .dropdown-menu{
+				border: 0;
+				background: rgba(125,125,125,40);
+				opacity: 0.9;
+				
+			}
+			nav .dropdown-menu>li>a{
+				border: 0;
+				opacity: 30%;
+				color: #E0E0E0;
+				
+			}
+			.main{
+				min-height: 800px;
+				color: #666;
+			}
+			.media {
+				margin-bottom: 2em;
+				padding-bottom: 1.5em;
+				border-bottom: 1px #ececec solid;
+				
+			}
+			.media-body{
+				line-height: 1.5em;
+				font-size:1.1em;
+			}
+			.media-body h4{
+				font-size: 20px;
+				margin-bottom: 15px;
+				
+			}
+			.submenu li{
+				list-style: none;
+				margin-left: 15px;
+				border: 0;
+			}
+		</style>
+{% endblock %}
+
+
+{% block content %}
+		<div class="container-fluid clearfix">
+			<div class="row">
+				<div class="col-md-2">
+					<div class="mainmenu list-grop">
+
+						<p class="list-group-item active">{{ category.name }}</p>
+                        {% for sub_cate in category.sub_cates %}
+                            {% if sub_cate.sub_cates|length==0 %}
+
+						<li class="list-group-item list-group-item-success"><a href="{{ url_for("article.category_manual", category_id=sub_cate.id )}}">{{ sub_cate.name }}</a></li>
+                            {% else %}
+
+                        <li class="list-group-item list-group-item-success {% if category_tree|length>1 and sub_cate.id == category_tree[-2][1] %} active_focus {%  endif %} "><a href="javascript:;">{{ sub_cate.name }}</a></li>
+						<ul class="submenu list-group-item">
+							{% for sub in sub_cate.sub_cates %}
+							<li class="list-group-item"><a href="{{ url_for("article.category_manual",  category_id=sub.id) }}">{{ sub.name }}</a></li>
+							{% endfor %}
+
+						</ul>
+                            {% endif %}
+
+                        {% endfor %}
+
+					</div>
+					
+				</div>
+				<div class="col-md-8 main">
+                    <ol class="breadcrumb">
+                          <li><a href="/">Python-XP手册首页</a></li>
+                        {% for cate in category_tree %}
+                           <li><a href="{{ url_for("article.category_manual", category_id=cate[1]) }}">{{ cate[0] }}</a></li>
+                        {% endfor %}
+
+                    </ol>
+                    {% for post in posts %}
+					<div class="media">
+						<div class="media-left" style="display:none">
+							<a href="{{ url_for('article.show_manual', category_id=post.category_id, post_id=post.id) }}">
+
+							</a>
+						</div>
+						<div class="media-body">
+                            <h4 class="media-heading"><a href="{{ url_for('article.show_manual', category_id=post.category_id, post_id=post.id) }}">{{ post.title }}</a></h4>
+							{{ post.intro|safe }} <a href="{{ url_for('article.show_manual', category_id=post.category_id, post_id=post.id) }}">了解更多&gt;&gt;</a>
+						</div>
+					</div>
+
+                    {% endfor %}
+                    {% if posts %}
+                        <div class="page-footer">{{ render_pagination(pagination) }}</div>
+                    {% endif %}
+
+				</div>
+
+			</div>
+		</div>
+{% endblock %}
+
+
+
+
+	</body>
+	
+</html>

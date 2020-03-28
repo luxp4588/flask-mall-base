@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+{% block head %}
+    <head>
+		<meta charset="utf-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <link rel="stylesheet" type="text/css" href="{{ url_for("static", filename="css/bootstrap.css") }}"/>
+	    <link rel="stylesheet" type="text/css" href="{{ url_for("static", filename="css/bootstrap-theme.css") }}"/>
+		<style type="text/css">
+			body{
+				padding-top: 52px;
+			}
+			.media a>img{
+				width: 120px;
+
+			}
+			#left_menu>li{
+				width:100%;
+			}
+			.hot_articles .list-group{
+				box-shadow: 0 0 0;
+			}
+			.hot_articles .list-group-item{
+				border: 0;
+				padding-left: 0;
+			}
+			footer{
+				padding: 15px;
+				background: #333;
+				text-align: center;
+				color: #fff;
+			}
+			footer nav{
+				margin: auto;
+				width: 300px;
+			}
+
+		</style>
+		{% block style %}
+		{% endblock %}
+		<script type="text/javascript" src="{{ url_for("static" ,filename="js/jquery-3.2.1.js") }}"></script>
+	</head>
+{%  endblock %}
+<body>
+{%  block nav %}
+      <nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
+
+			<!-- 手机屏幕显示 -->
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse"
+				 data-target="#navmenu">
+					<span class="sr-only">展开导航</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+
+				</button>
+				<a href="" class="navbar-brand">平哥de店</a>
+			</div>
+			<div class="collapse navbar-collapse" id="navmenu">
+				<!-- 必须设置 navbar-nav-->
+				<ul class="nav navbar-nav" >
+					<li class="active"><a href="{{ url_for("mall.index") }}">网站首页</a></li>
+
+				{#
+					{% for cate in cates %}
+                        <li><a href="{{ url_for("article_app.getArticleList",cate_id=cate.cate_id, page=1) }}">{{ cate.cate_name }}</a> </li>
+                    {% endfor %}
+                   <li><a href="{{ url_for("article_app.list") }}">文章管理</a></li>
+
+
+					#}
+                </ul>
+                <ul class="nav navbar-nav pull-right">
+                   {% if not current_user.username %}
+                        <li><a href="{{ url_for("auth.login") }}">登录</a></li>
+                        <li><a href="{{ url_for("auth.register") }}">注册</a></li>
+                   {% else %}
+                        <li><a href="{{ url_for("member.center_index") }}">{{ current_user.username }}</a></li>
+                        <li><a href="{{ url_for("member.cart_list") }}"><span class="glyphicon glyphicon-shopping-cart"></span></a></li>
+				    {% endif %}
+
+                </ul>
+			</div>
+		</nav>
+
+{% endblock %}
+
+
+{% block content %}
+
+ 每个页面的不同部分
+{%  endblock %}
+
+
+{% block footer %}
+          <footer>
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-md-12">
+						网易微专业Python全栈课程&copy;2019版权所有
+					</div>
+				</div>
+			</div>
+			<nav >
+				<ul class="nav nav-pills   ">
+					<li><a href="">关于网易</a></li>
+					<li><a href="">网易微专业</a></li>
+					<li><a href="">关于平哥</a></li>
+				</ul>
+			</nav>
+		</footer>
+
+		<script type="text/javascript" src="{{ url_for("static" ,filename="js/bootstrap.js") }}"></script>
+{% endblock %}
+</body>
+</html>

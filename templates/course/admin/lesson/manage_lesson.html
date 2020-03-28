@@ -1,0 +1,199 @@
+
+{% from 'bootstrap/pagination.html' import render_pagination %}
+
+{% block title %}课时管理{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <h3>课时总数
+        <small class="text-muted">{{ pagination.total }}</small>
+    </h3>
+<button class="btn btn-primary add-lesson" data-href="{{ url_for('course.new_lesson', course_id=course_id) }}">添加课时</button>
+
+</div>
+{% if lessons %}
+
+<table>
+    <thead>
+    <tr>
+        <th>编号</th>
+        <th>标题</th>
+        <th>发布日期</th>
+        <th>问题</th>
+        <th>新问题</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    {% for lesson in lessons %}
+<tr>
+        <td>{{ loop.index + ((page - 1) * config.XPCMS_MANAGE_ARTICLE_PER_PAGE) }}<input type="checkbox" name="del_id" value="{{ lesson.id }}" /></td>
+        <td>【{{ lesson.order_id }}】<a href="{{ url_for('course.show_lesson',  lesson_id=lesson.id) }}" target="_blank">{{ lesson.title }}</a></td>
+        <td>{{ moment(lesson.timestamp).format('LL') }}</td>
+        <td><a href="{{ url_for('course.show_lesson',  lesson_id=lesson.id) }}#questions">{{ lesson.questions|length }}</a></td>
+        <td>{{ lesson.body|striptags|length }}</td>
+        <td>
+                <button type="button" class="btn btn-warning btn-sm comment-btn" data-href="">
+                   回复问题
+                </button>
+            <button class="btn btn-info btn-sm edit-lesson-btn "    data-href="{{ url_for('.edit_lesson', lesson_id=lesson.id) }}">修改</button>
+            </button>
+
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>
+<div class="page-footer">{{ render_pagination(pagination) }}</div>
+{% else %}
+<div class="tip"><h5>暂无课程</h5></div>
+{% endif %}
+
+<script type="text/javascript">
+/**
+ * 修改
+ */
+
+
+
+$(function(){
+             $(".add-lesson").on("click",function(event){
+                var target = $(event.target);
+                url = $(this).attr("data-href")
+                console.log("ok")
+                $(".modal-body").load(url)
+
+
+            })
+         })
+
+$(function(){
+             $(".edit-lesson-btn").on("click",function(event){
+                var target = $(event.target);
+                url = $(this).attr("data-href")
+                {#console.log("ok")#}
+                $(".modal-body").load(url)
+
+
+            })
+         })
+
+
+
+/**
+ * 禁止评论
+ */
+$(function(){
+     $(".comment-btn").on("click",function(event){
+        var target = $(event.target);
+        url = $(this).attr("data-href")
+        {#console.log("ok")#}
+        $.ajax({
+            url: url,
+            type: "post",
+            beforeSend: function(xhr){
+                 xhr.setRequestHeader("X-CSRFToken", csrf_token)
+            },
+            data: {},
+            success: function(data){
+                if (data=="ok")
+                 {
+                     if (target.html() == "允许评论") {
+                         target.html("禁止评论")
+                     } else {
+                         target.html("允许评论")
+                     }
+                 }
+            },
+
+        })
+    })
+})
+/**
+ * 删除
+ *
+ */
+$(function(){
+     $(".delete-btn").on("click",function(event){
+        var target = $(event.target);
+        url = $(this).attr("data-href")
+        {#console.log("ok")#}
+        $.ajax({
+            url: url,
+            type: "post",
+            beforeSend: function(xhr){
+                 xhr.setRequestHeader("X-CSRFToken", csrf_token)
+            },
+            data: {},
+            success: function(data){
+                if (data=="ok")
+                 {
+                    console.log(target.parent().parent().remove())
+                 }
+            },
+
+        })
+    })
+})
+
+/**
+ * 全部选中与取消
+ */
+ $(function(){
+     $(".all").on('click', function(event){
+         console.log("ok")
+       if ($("input[name='del_id']").is(":checked")) {
+           $("input[name='del_id']").removeAttr("checked");
+       } else {
+           $("input[name='del_id']").attr("checked", "true");
+        }
+
+     })
+
+ })
+
+/**
+ * 全部删除
+ */
+$(function() {
+    $(".del-all").on("click", function(){
+        var checkID =[]
+        $("input[name='del_id']:checked").each(function (i) {
+            checkID[i] = $(this).val();
+        })
+        console.log(checkID)
+        $.ajax({
+            url: '{{ url_for(".batch_delete_lesson") }}',
+            type: "post",
+            data: {'checkID':checkID},
+            beforeSend:function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token)
+
+            },
+            success:function(data){
+                $(".mainbody").load("{{ request.full_path }}")
+            }
+        })
+
+    })
+
+})
+/***
+ *  翻页点击重写事件
+ */
+$(".pagination a").on('click', function(event){
+    event.preventDefault()
+    {#console.log(event)#}
+
+    link_url = $(event.target).attr("href")
+    if (link_url!="#") {
+        console.log(link_url)
+        $(".mainbody").load($.trim(link_url))
+    }
+
+})
+
+
+</script>
+{% endblock %}

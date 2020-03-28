@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<style type="text/css">
+		</style>
+	</head>
+	<body>
+		<div id="">
+			<span id="up_img">IMG_ICON</span>
+			<div id="show_up_img"></div>
+			<input type="file" name="up_file" id="up_file"/>
+		</div>
+	</body>
+	<script type="text/javascript" src="../src/jquery.min.js"></script>
+	<script type="text/javascript" src="uploadimg.js"></script>
+	<script>
+		$("#up_file").change(function(){
+			var me = $(this);
+			me.uploadImgFrame({
+				action: 'http://localhost/up.php',
+				params: ['yanruitao', 23],
+				onStart: function(name, age) {
+					alert(this.val());
+					alert("What is up!!\n"+ name + "\n" + age);
+				},
+				onSuccess: function(obj) {
+					$("#show_up_img").html('<img src="'+ obj.img +'">');
+				}
+			});
+		});
+	</script>
+</html>

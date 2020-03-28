@@ -1,0 +1,40 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+coverage = "*"
+watchdog = "*"
+faker = "*"
+twine = "*"
+
+[packages]
+flask = "*"
+flask-ckeditor = "*"
+flask-mail = "*"
+flask-sqlalchemy = "*"
+flask-wtf = "*"
+flask-moment = "*"
+python-dotenv = "*"
+bootstrap-flask = "*"
+flask-login = "*"
+flask-debugtoolbar = "*"
+gunicorn = "*"
+flask-migrate = "*"
+flask-caching = "*"
+flask-whooshee = "*"
+flask-dropzone = "*"
+pillow = "*"
+flake8 = "*"
+pymysql = "*"
+cryptography = "*"
+requests = "*"
+xmltodict = "*"
+qrcode = "*"
+alipay-python = "*"
+flask-alipay = "*"
+click = "*"
+
+[requires]
+python_version = "3.7"

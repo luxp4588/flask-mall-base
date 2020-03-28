@@ -1,0 +1,130 @@
+<link rel="stylesheet" href="{{ url_for("static", filename="css/dropzone.min.css") }}">
+{{ dropzone.style('margin: 20px 0; border: 2px dashed #0087F7; min-height: 400px;') }}
+            <div class="form-group" id="category_select"></div>
+            <div></div>
+
+            <div class="form-group">
+                {{ form.title.label }}
+                {{ form.title(class="form-control", id="title") }}
+            </div>
+            <div class="form-group">
+                {{ form.order_id.label }}
+                {{ form.order_id(class="form-control") }}
+            </div>
+            <div class="form-group">
+                <img src="{{ url_for(".get_image", filename=thumb) }}" />
+
+                {{ form.thumb }}
+                {{ dropzone.create(action="course.course_upload_thumb") }}
+            </div>
+
+            <div class="form-group">
+                <label for="intro" class="control-label">{{ form.intro.label }}</label>
+                {{ form.intro(class="form-control", id="intro") }}
+            </div>
+            <div class="form-group">
+                <label for="body" class="control-label">内容:</label>
+                {{ form.body(class="form-controle") }}
+            </div>
+            <div class="form-group">
+                {{ form.video_url.label }}
+                {{ form.video_url(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.tags(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.price.label }}
+                {{ form.price(class="form-control") }}
+            </div>
+
+            <div class="modal-footer">
+            <button type="button" class="btn btn-primary send-btn">确认修改</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+        </div>
+        </div>
+
+<script type="text/javascript" src="{{ url_for('static', filename="ckeditor/ckeditor.js") }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/course/category.js') }}"></script>
+    {{ dropzone.config(custom_init='this.on("success", function(file, res) {
+        if( file.xhr.status == 200 ){
+           $("#thumb").val(res.file)
+        }else{
+            alert("上传失败");
+        }
+    });
+       '
+    ) }}
+
+    {{ ckeditor.config(name='intro',  toolbar="Basic") }}
+    {{ ckeditor.config(name='body', height=500, toolbar="Full") }}
+
+<script type="text/javascript">
+    var edit_url = "{{ request.full_path }}"
+    var category_url = " {{ url_for('.get_cate') }}"
+    var csrf_token = "{{ csrf_token() }}"
+    var category_select = document.getElementById("category_select")
+    var parent_id = {{ form.category.data }}
+
+    function edit_new_post() {
+        cate_id = parent_id
+        title = $('#title').val()
+        thumb = $('#thumb').val()
+        intro = CKEDITOR.instances["intro"].getData()
+        body  = CKEDITOR.instances["body"].getData()
+        order_id = $("#order_id").val()
+        tags = $("#tags").val()
+        price = $("#price").val()
+        video_url= $("#video_url").val()
+         $(".modal-body").html("")
+        $.ajax({
+            url: edit_url,
+            type: "post",
+            beforeSend:function(xhr){
+                xhr.setRequestHeader("X-CSRFToken", csrf_token)
+            },
+            data:{"title":title,"category":cate_id, "body":body, "intro":intro, "thumb":thumb,"order_id":order_id,
+            "tags":tags,"video_url":video_url,"price":price},
+            dataType: "text",
+            success: function(data){
+                 $(".modal-body").html(data)
+            }
+        })
+
+    }
+    $('.send-btn').on('click', edit_new_post)
+    /***
+     * bootstrap弹窗无法编辑fix
+     * @
+     */
+    $.fn.modal.Constructor.prototype.enforceFocus = function () {
+        var $modalElement = this.$element;
+
+        $(document).on('focusin.modal', function (e) {
+            var $parent = $(e.target.parentNode);
+            try {
+                if ($modalElement[0] !== e.target && !$modalElement.has(e.target).length
+                    // add whatever conditions you need here:
+                    &&
+                    !$parent.hasClass('cke_dialog_ui_input_textarea')
+                    &&
+                    !$parent.hasClass('cke_dialog_ui_input_select')
+                    && !$parent.hasClass('cke_dialog_ui_input_text')) {
+                    $modalElement.focus()
+                }
+            } catch (err) {
+                console.log(err)
+            }
+
+
+        })
+    }
+    $(function(){
+        var myDropzone = new Dropzone("#myDropzone",{})
+        console.log("-----------------")
+        load_cate(0)
+    })
+
+
+</script>

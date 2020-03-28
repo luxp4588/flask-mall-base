@@ -1,0 +1,62 @@
+{%  extends "base.html" %}
+
+{% block style %}
+  <style>
+      body{
+				margin:0;
+				padding-top: 70px;
+				background: #fff;
+			}
+      .price{
+          color: #ff1c1c;
+      }
+  </style>
+{% endblock %}
+{% block content %}
+<script src="{{  url_for('static', filename='js/qrcode.min.js') }}"></script>
+		<div class="container clearfix">
+            <div class="panel panel-default">
+                  <div class="panel-heading">微信支付-订单号:{{ out_trade_no }}</div>
+                  <div class="panel-body">
+                        <div class="row">
+                            <div id="wxpaycode">
+
+                            </div>
+                        </div>
+                  </div>
+            </div>
+        </div>
+
+    <script>
+
+        function createQrcode(url) {
+            new QRCode("wxpaycode", {
+                text: url,
+                width: 128,
+                height: 128,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        function get_order_status(){
+            $.ajax({
+                url: '{{ url_for('member.get_order_status', out_trade_no=out_trade_no) }}?t='+Math.random(),
+                type: "get",
+                dataType: "json",
+                success: function (data) {
+                    if (data.success == 'success'){
+                        $('#wxpaycode').html("支付成功")
+                        setTimeout(document.location="{{ url_for("index")}}", 3000)
+                        clearInterval(time_id)
+                    }
+
+                }
+            })
+        }
+
+         createQrcode('{{ code_url }}')
+         time_id = setInterval("get_order_status()", 6000)
+    </script>
+{% endblock %}

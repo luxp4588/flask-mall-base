@@ -1,0 +1,82 @@
+            <div class="form-group">
+                {{ form.title.label }}
+                {{ form.title(class="form-control", id="title") }}
+            </div>
+            <div class="form-group">
+                {{ form.order_id.label }}
+                {{ form.order_id(class="form-control") }}
+            </div>
+
+
+            <div class="form-group">
+                <label for="intro" class="control-label">{{ form.intro.label }}</label>
+                {{ form.intro(class="form-control", id="intro") }}
+            </div>
+            <div class="form-group">
+                <label for="body" class="control-label">内容:</label>
+                {{ form.body(class="form-controle") }}
+            </div>
+            <div class="form-group">
+                {{ form.video_url.label }}
+                {{ form.video_url(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.price.label }}
+                {{ form.price(class="form-control") }}
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-primary send-btn">确认修改</button>
+            <button type="button" class="btn btn-default back_lesson_list-btn" >返回课时列表</button>
+
+        </div>
+        </div>
+
+
+
+    {{ dropzone.config(custom_init='this.on("success", function(file, res) {
+        if( file.xhr.status == 200 ){
+           $("#thumb").val(res.file)
+        }else{
+            alert("上传失败");
+        }
+    });
+       '
+    ) }}
+
+    {{ ckeditor.config(name='intro',  toolbar="Basic") }}
+    {{ ckeditor.config(name='body', height=500, toolbar="Full") }}
+
+<script type="text/javascript">
+    var edit_url = "{{ url_for('.edit_lesson', lesson_id=lesson_id) }}"
+    var csrf_token = "{{ csrf_token() }}"
+
+    function edit_lesson() {
+
+        title = $('#title').val()
+        thumb = $('#thumb').val()
+        intro = CKEDITOR.instances["intro"].getData()
+        body  = CKEDITOR.instances["body"].getData()
+        order_id = $("#order_id").val()
+        video_url= $("#video_url").val()
+        price = $("#price").val()
+        $(".modal-body").html("")
+        $.ajax({
+            url: edit_url,
+            type: "post",
+            beforeSend:function(xhr){
+                xhr.setRequestHeader("X-CSRFToken", csrf_token)
+            },
+            data:{"title":title,"category":cate_id, "body":body, "intro":intro, "order_id":order_id,
+            "video_url":video_url, "price": price},
+            dataType: "text",
+            success: function(data){
+                 $(".modal-body").html(data)
+            }
+        })
+
+    }
+    $('.send-btn').on('click', edit_lesson)
+    $('.back_lesson_list-btn').on('click', function(){
+             $(".modal-body").load('{{ url_for('.manage_lesson', course_id=course_id)}}')
+    })
+</script>

@@ -1,0 +1,118 @@
+{% extends "member/member_base.html" %}
+{% block style %}
+
+        input[type='number']{
+            width: 50px;
+        }
+        .btn{
+            margin-right: 30px;
+
+        }
+
+{% endblock %}
+{% block content %}
+		<div class="container-fluid">
+			<div class="row">
+
+				<div class="col-md-12">
+					<!-- 媒体列表 -->
+                    <h3>我的购物车</h3>
+
+					<table class="table table-bordered ">
+
+                        <tr>
+                            <th>ID</th>
+                            <th>商品名称</th>
+                            <th>单价(元)</th>
+                            <th>数量</th>
+                            <th>总价</th>
+                            <th>操作</th>
+                        </tr>
+                        {% for cart in cart_list %}
+                        <tr>
+                            <td>{{ cart.id }}</td>
+                            <td><a href="{{ url_for("mall.show_goods", category_id=cart.goods.category_id, goods_id=cart.goods.goods_id) }}">{{ cart.goods.goods_title }}</a></td>
+                            <td>{{ cart.goods.price }}</td>
+                            <td><input type="number" id="amount_{{ cart.id }}"
+                                       value="{{ cart.amount }}"
+                                       min=1
+                                       oninput="total_{{ cart.id }}.value={{ cart.goods.price }}*parseInt(this.value)"
+                                       data-id="{{ cart.id }}" data-price="{{ cart.goods.price }}"
+                                       data-url="{{ url_for("member.edit_cart", cart_id=cart.id)}}"
+                            ></td>
+                            <td><output id="total_{{ cart.id }}" >{{ cart.amount * cart.goods.price }}</output></td>
+                            <td>
+                                <button class="btn btn-primary delete-btn" data-url="{{ url_for("member.delete_cart", cart_id=cart.id) }}">删除</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    <div class="pull-right">
+                        总价:<span id="total"></span>元
+                        <hr>
+                        <a class="btn btn-info" href="{{ url_for('member.create_order') }}">去结算</a>
+                    </div>
+				</div>
+			</div>
+		</div>
+<script>
+    csrf_token = '{{ csrf_token() }}'
+    $(function(){
+        //计算订单总价，不作为实际付款依据
+        calc_total = function (){
+            total = 0
+            $("input[type='number']").each(function(index,obj){
+                  total += parseFloat($(obj).data("price")) * $(obj).val()
+            })
+            $("#total").html(total)
+        }
+
+        $(".delete-btn").on("click", function(e){
+            if (!confirm("确认删除吗")){
+                console.log($(this).parent().parent().remove())
+                return false
+            }
+            btn = $(this)
+            $.ajax({
+                url:$(this).data("url"),
+                type: "delete",
+                beforeSend:function(xhr){
+                xhr.setRequestHeader("X-CSRFToken", csrf_token)
+                 },
+                dataType:"json",
+                success: function(data){
+                    if (data.result){
+                      btn.parent().parent().remove()
+                      calc_total()
+                    }
+                 }
+
+            })
+        })
+
+
+        $("input[type='number']").on("change", function(e){
+             obj = $(e.target)
+             $.ajax({
+                url:obj.data("url"),
+                type: "put",
+                data:{amount:obj.val()},
+                beforeSend:function(xhr){
+                xhr.setRequestHeader("X-CSRFToken", csrf_token)
+                 },
+                dataType:"json",
+                success: function(data){
+                    if (data.result){
+                      calc_total()
+                    }
+                 }
+             })
+
+
+
+        })
+         calc_total()
+    })
+</script>
+{% endblock %}
+

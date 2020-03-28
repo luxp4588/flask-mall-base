@@ -1,0 +1,90 @@
+{% block content %}
+    <div class="page-header">
+        <h1>添加新课时</h1>
+        <button class="btn btn-info btn-sm edit-btn"   data-href="{{ url_for('.manage_lesson', course_id=course_id) }}">返回课时列表</button>
+
+    </div>
+    <div id="tips"></div>
+
+    <div class="form-group">
+        {{ form.title.label }}
+        {{ form.title(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.order_id.label }}
+        {{ form.order_id(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.intro.label }}
+        {{ form.intro(class="form-control") }}
+    </div>
+    </div>
+    <div class="form-group">
+        {{ form.body.label }}
+        {{ form.body }}
+    </div>
+    <div class="form-group">
+        {{ form.video_url.label }}
+        {{ form.video_url(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.price.label }}
+        {{ form.price(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        <button class="btn btn-primary add-lesson-btn" type="button">添加</button>
+    </div>
+
+{% endblock %}
+
+    {{ ckeditor.config(name="intro", toolbar="Basic") }}
+    {{ ckeditor.config(name='body', height=500, toolbar="full") }}
+
+
+<script type="text/javascript">
+    var add_url = "{{ url_for('.new_lesson', course_id=course_id) }}"
+    var csrf_token = "{{ csrf_token() }}"
+    var tips = $("#tips")
+    function add_new_lesson() {
+
+        title = $('#title').val()
+        order_id = $('#order_id').val()
+        intro = CKEDITOR.instances["intro"].getData()
+        body  = CKEDITOR.instances["body"].getData()
+        video_url = $("#video_url").val()
+        price = $("#price").val()
+        console.log(add_url, title, body, video_url)
+        $.ajax({
+            url: add_url,
+            type: "post",
+            beforeSend:function(xhr){
+                xhr.setRequestHeader("X-CSRFToken", csrf_token)
+            },
+            data:{"title": title, "body": body, "intro": intro,
+                  "order_id": order_id, "video_url": video_url, "price": price},
+            dataType: "json",
+            success: function(data){
+                tips.html("添加成功" + data.lesson_id)
+                $('#title').val("")
+                CKEDITOR.instances["intro"].setData()
+                CKEDITOR.instances["body"].setData()
+            }
+        })
+    }
+    $('.add-lesson-btn').on('click', add_new_lesson)
+
+
+    $(function(){
+             $(".edit-btn").on("click",function(event){
+                var target = $(event.target);
+                url = $(this).attr("data-href")
+                {#console.log("ok")#}
+                $(".modal-body").load(url)
+
+
+            })
+         })
+</script>
+

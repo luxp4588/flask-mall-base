@@ -1,0 +1,236 @@
+
+{% from 'bootstrap/pagination.html' import render_pagination %}
+
+{% block title %}Manage Posts{% endblock %}
+
+{% block content %}
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel">
+<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="exampleModalLabel">文章修改</h4>
+        </div>
+        <div class="modal-body">
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+<div class="page-header">
+<div>
+    <div class="form-group" id="category_select"></div>
+    <div class="form-group"><input type="button" name="search" id="search" class="form-control" value="检索"></div>
+</div>
+    <h3>文章总数
+        <small class="text-muted">{{ pagination.total }}</small>
+    </h3>
+</div>
+{% if articles %}
+
+<table>
+    <thead>
+    <tr>
+        <th>编号</th>
+        <th>标题</th>
+        <th>类名</th>
+        <th>发布日期</th>
+        <th>评论</th>
+        <th>Words</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    {% for article in articles %}
+    <tr>
+        <td>{{ loop.index + ((page - 1) * config.XPCMS_MANAGE_ARTICLE_PER_PAGE) }}<input type="checkbox" name="del_id" value="{{ article.id }}" /></td>
+        <td>【{{ article.order_id }}】<a href="{{ url_for('article.show_article', category_id=article.category.id, article_id=article.id) }}" target="_blank">{{ article.title }}</a></td>
+        <td><a href="{{ url_for('article.category_'+article.category.cate_type, category_id=article.category.id) }}">{{ article.category.name }}</a>
+        </td>
+        <td>{{ moment(article.timestamp).format('LL') }}</td>
+        <td><a href="{{ url_for('article.show_article', category_id=article.category.id, article_id=article.id) }}#comments">{{ article.comments|length }}</a></td>
+        <td>{{ article.body|striptags|length }}</td>
+        <td>
+
+                <button type="button" class="btn btn-warning btn-sm comment-btn" data-href="{{ url_for('.set_comment', article_id=article.id) }}">
+                    {% if article.can_comment %}禁止{% else %}允许{% endif %}评论
+                </button>
+            <button class="btn btn-info btn-sm edit-btn"   data-toggle="modal" data-target="#editModal"  data-href="{{ url_for('.edit_article', article_id=article.id) }}">修改</button>
+            <button class="btn btn-info btn-sm baidu-btn"   data-toggle="modal" data-target="#editModal"  data-href="{{ url_for('.push_baidu', article_id=article.id) }}">百家号</button>
+
+
+
+            <button type="submit" class="btn btn-danger btn-sm delete-btn" onclick="return confirm('Are you sure?');" data-href="{{ url_for('.delete_article', article_id=article.id)}}">删除
+            </button>
+
+        </td>
+    </tr>
+    {% endfor %}
+<td colspan="4">
+                    <input type="button"  class="btn btn-primary all" value="全部选中" />
+                    <input type="button" class="btn btn-primary del-all" value="删除选中">
+                </td>
+</table>
+<div class="page-footer">{{ render_pagination(pagination) }}</div>
+{% else %}
+<div class="tip"><h5>No posts.</h5></div>
+{% endif %}
+
+<script type="text/javascript">
+/**
+ * 修改
+ */
+var csrf_token = "{{ csrf_token() }}"
+var parent_id = 0
+var category_select = document.getElementById("category_select")
+$(function () {
+    load_cate(0)
+})
+
+$(function(){
+             $(".edit-btn").on("click",function(event){
+                var target = $(event.target);
+                url = $(this).attr("data-href")
+                {#console.log("ok")#}
+                $(".modal-body").load(url)
+
+
+            })
+         })
+
+$(function(){
+             $(".baidu-btn").on("click",function(event){
+                var target = $(event.target);
+                url = $(this).attr("data-href")
+                {#console.log("ok")#}
+                $(".modal-body").load(url)
+
+
+            })
+         })
+
+/**
+ * 禁止评论
+ */
+$(function(){
+     $(".comment-btn").on("click",function(event){
+        var target = $(event.target);
+        url = $(this).attr("data-href")
+        {#console.log("ok")#}
+        $.ajax({
+            url: url,
+            type: "post",
+            beforeSend: function(xhr){
+                 xhr.setRequestHeader("X-CSRFToken", csrf_token)
+            },
+            data: {},
+            success: function(data){
+                if (data=="ok")
+                 {
+                     if (target.html() == "允许评论") {
+                         target.html("禁止评论")
+                     } else {
+                         target.html("允许评论")
+                     }
+                 }
+            },
+
+        })
+    })
+})
+/**
+ * 删除
+ *
+ */
+$(function(){
+     $(".delete-btn").on("click",function(event){
+        var target = $(event.target);
+        url = $(this).attr("data-href")
+        {#console.log("ok")#}
+        $.ajax({
+            url: url,
+            type: "post",
+            beforeSend: function(xhr){
+                 xhr.setRequestHeader("X-CSRFToken", csrf_token)
+            },
+            data: {},
+            success: function(data){
+                if (data=="ok")
+                 {
+                    console.log(target.parent().parent().remove())
+                 }
+            },
+
+        })
+    })
+})
+
+/**
+ * 全部选中与取消
+ */
+ $(function(){
+     $(".all").on('click', function(event){
+         console.log("ok")
+       if ($("input[name='del_id']").is(":checked")) {
+           $("input[name='del_id']").removeAttr("checked");
+       } else {
+           $("input[name='del_id']").attr("checked", "true");
+        }
+
+     })
+
+ })
+
+/**
+ * 全部删除
+ */
+$(function() {
+    $(".del-all").on("click", function(){
+        var checkID =[]
+        $("input[name='del_id']:checked").each(function (i) {
+            checkID[i] = $(this).val();
+        })
+        console.log(checkID)
+        $.ajax({
+            url: '{{ url_for(".batch_delete_article") }}',
+            type: "post",
+            data: {'checkID':checkID},
+            beforeSend:function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token)
+
+            },
+            success:function(data){
+                $(".mainbody").load("{{ request.full_path }}")
+            }
+        })
+
+    })
+
+})
+/***
+ *  翻页点击重写事件
+ */
+$(".pagination a").on('click', function(event){
+    event.preventDefault()
+    {#console.log(event)#}
+
+    link_url = $(event.target).attr("href")
+    if (link_url!="#") {
+        console.log(link_url)
+        $(".mainbody").load($.trim(link_url))
+    }
+
+})
+
+/**
+ * 检索
+ */
+$("#search").on('click', function(){
+    link_url = "{{ url_for(".manage_article") }}/"+parent_id
+
+    $(".mainbody").load($.trim(link_url))
+
+})
+</script>
+{% endblock %}

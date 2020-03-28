@@ -1,0 +1,21 @@
+<div class="container">
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="navbar-header">
+            <a href="" class="navbar-brand">XP EDU</a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav" rol="navigation">
+                <li><a href="{#  url 'lists' #}">BLOG</a></li>
+            </ul>
+            <ul class="nav navbar-nav nav-bar-right" style="margin-right:10px">
+                {#   if user.is_authenticated #}
+                <li><a href="#">{# request.user.username #}</a></li>
+                <li><a href="{#   url 'user_logout' #}">Logout</a></li>
+                {#   else #}
+                <li><a href="{#   url 'user_login' #}">Login</a></li>
+                {#   endif #}
+            </ul>
+        </div>
+    </nav>
+
+</div>

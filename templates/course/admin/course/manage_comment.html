@@ -1,0 +1,173 @@
+
+{% from 'bootstrap/pagination.html' import render_pagination %}
+
+{% block title %}Manage Comments{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Comments
+            <small class="text-muted">{{ pagination.total }}</small>
+        </h1>
+
+        <ul class="nav nav-pills">
+            <li class="nav-item">
+                <a class="nav-link disabled" href="#">Filter </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.args.get('filter', 'all') == 'all' %}active{% endif %}"
+                   href="{{ url_for('admin.manage_comment', filter='all') }}">All</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.args.get('filter') == 'unread' %}active{% endif %}"
+                   href="{{ url_for('admin.manage_comment', filter='unread') }}">Unread {% if unread_comments %}<span
+                        class="badge badge-success">{{ unread_comments }}</span>{% endif %}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.args.get('filter') == 'admin' %}active{% endif %}"
+                   href="{{ url_for('admin.manage_comment', filter='admin') }}">From Admin</a>
+            </li>
+        </ul>
+    </div>
+
+    {% if comments %}
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>No.</th>
+                <th>Author</th>
+                <th>Body</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            {% for comment in comments %}
+                <tr {% if not comment.reviewed %}class="table-warning" {% endif %}>
+                    <td>{{ loop.index + ((pagination.page - 1) * config['BLUELOG_COMMENT_PER_PAGE']) }}<input type="checkbox" name="del_id" value="{{ comment.id }}" /></td>
+                    <td>
+                        {% if comment.from_admin %}{{ admin.name }}{% else %}{{ comment.author }}{% endif %}<br>
+                        {% if comment.site %}
+                            <a href="{{ comment.site }}" target="_blank">
+                                {{ comment.site }}
+                            </a><br>
+                        {% endif %}
+                        <a href="mailto:{{ comment.email }}">{{ comment.email }}</a>
+
+                        {% if comment.from_admin %}
+                            <span class="badge badge-primary">Author</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ comment.body }}</td>
+                    <td>{{ moment(comment.timestamp).format('LL') }}</td>
+                    <td>
+                        {% if not comment.reviewed %}
+                            <form class="inline" method="post"
+                                  action="{{ url_for('.approve_comment', comment_id=comment.id, next=request.full_path) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                            </form>
+                        {% endif %}
+
+                        <a class="btn btn-info btn-sm" href="{{ url_for('blog.show_post', post_id=comment.post.id) }}" target="_blank">Post</a>
+
+                            <button type="submit" class="btn btn-danger btn-sm delete-btn"
+                                    onclick="return confirm('Are you sure?');" data-href="{{ url_for('.delete_comment', comment_id=comment.id) }}">删除
+                            </button>
+
+                    </td>
+                </tr>
+            {% endfor %}
+            <td colspan="4">
+                    <input type="button"  class="btn btn-primary all" value="全部选中" />
+                    <input type="button" class="btn btn-primary del-all" value="删除选中">
+                </td>
+        </table>
+        <div class="page-footer">{{ render_pagination(pagination) }}</div>
+    {% else %}
+        <div class="tip"><h5>No comments.</h5></div>
+    {% endif %}
+    <script type="text/javascript">
+    /**
+     * 删除
+     *
+     */
+    var csrf_token = "{{ csrf_token() }}"
+    $(function() {
+        $(".delete-btn").on("click", function (event) {
+            var target = $(event.target);
+            url = $(this).attr("data-href")
+            {#console.log("ok")#}
+            $.ajax({
+                url: url,
+                type: "post",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", csrf_token)
+                },
+                data: {},
+                success: function (data) {
+                    if (data == "ok") {
+                        console.log(target.parent().parent().remove())
+                    }
+                },
+
+            })
+        })
+    })
+
+    /**
+ * 全部选中与取消
+ */
+ $(function(){
+     $(".all").on('click', function(event){
+         console.log("ok")
+       if ($("input[name='del_id']").is(":checked")) {
+           $("input[name='del_id']").removeAttr("checked");
+       } else {
+           $("input[name='del_id']").attr("checked", "true");
+        }
+
+     })
+
+ })
+
+/**
+ * 全部删除
+ */
+$(function() {
+    $(".del-all").on("click", function(){
+        var checkID =[]
+        $("input[name='del_id']:checked").each(function (i) {
+            checkID[i] = $(this).val();
+        })
+        console.log(checkID)
+        $.ajax({
+            url: '/admin/comment/delete',
+            type: "post",
+            data: {'checkID':checkID},
+            beforeSend:function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", csrf_token)
+
+            },
+            success:function(data){
+                $(".mainbody").load("{{ request.full_path }}")
+            }
+        })
+
+    })
+
+})
+/***
+ *  翻页点击重写事件
+ */
+$(".pagination a").on('click', function(event){
+    event.preventDefault()
+    {#console.log(event)#}
+
+    link_url = $(event.target).attr("href")
+    if (link_url!="#") {
+        console.log(link_url)
+        $(".mainbody").load($.trim(link_url))
+    }
+
+})
+    </script>
+{% endblock %}

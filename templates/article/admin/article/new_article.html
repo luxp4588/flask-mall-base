@@ -1,0 +1,111 @@
+
+<link rel="stylesheet" href="{{ url_for("static", filename="css/dropzone.min.css") }}">
+{{ dropzone.style('margin: 20px 0; border: 2px dashed #0087F7; min-height: 400px;') }}
+{% from 'bootstrap/form.html' import render_form %}
+
+{% block title %}New Post{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>New Post</h1>
+    </div>
+    <div id="tips"></div>
+    <div class="form-group" id="category_select"></div>
+    <div class="form-group">
+        {{ form.title.label }}
+        {{ form.title(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.order_id.label }}
+        {{ form.order_id(class="form-control") }}
+    </div>
+    <div class="form-group">
+
+        {{ form.thumb }}
+        {{ dropzone.create(action="article.article_upload_thumb") }}
+    </div>
+    <div class="form-group">
+        {{ form.intro.label }}
+        {{ form.intro(class="form-control") }}
+    </div>
+    </div>
+    <div class="form-group">
+
+        {{ form.body.label }}
+
+        {{ form.body }}
+    </div>
+    <div class="form-group">
+        {{ form.video_url.label }}
+        {{ form.video_url(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ form.tags.label }}
+        {{ form.tags(class="form-control") }}
+    </div>
+    <div class="form-group">
+        <button class="btn btn-primary">添加</button>
+    </div>
+
+{% endblock %}
+
+    {{ dropzone.config(custom_init='this.on("success", function(upload, res) {
+                if( upload.xhr.status == 200 ){
+                   $("#thumb").val(res.file)
+                }else{
+                    alert("上传失败");
+                }
+            });
+               '
+            ) }}
+    {{ ckeditor.config(name="intro", toolbar="Basic") }}
+    {{ ckeditor.config(name='body', height=500, toolbar="full") }}
+
+
+<script type="text/javascript">
+    var add_url = "{{ url_for('.new_article') }}"
+    var category_url = " {{ url_for('.get_cate') }}"
+    var csrf_token = "{{ csrf_token() }}"
+    var category_select = document.getElementById("category_select")
+    var parent_id = 0
+    var tips = $("#tips")
+
+    function add_new_post() {
+        cate_id = parent_id
+        title = $('#title').val()
+        thumb = $('#thumb').val()
+        order_id = $('#order_id').val()
+        intro = CKEDITOR.instances["intro"].getData()
+        body  = CKEDITOR.instances["body"].getData()
+        tags = $("#tags").val()
+        video_url = $("#video_url").val()
+
+        $.ajax({
+            url: add_url,
+            type: "post",
+            beforeSend:function(xhr){
+                xhr.setRequestHeader("X-CSRFToken", csrf_token)
+            },
+            data:{"title": title, "category": cate_id, "body": body, "intro": intro, 'thumb': thumb,
+            "tags": tags, "order_id": order_id, "video_url": video_url},
+            dataType: "json",
+            success: function(data){
+                tips.html("添加成功" + data.article_id)
+                $('#title').val("")
+                $('#thumb').val("")
+                CKEDITOR.instances["intro"].setData()
+                CKEDITOR.instances["body"].setData()
+                $(".dz-preview").remove()
+            }
+        })
+    }
+    $('.btn').on('click', add_new_post)
+    $(function(){
+        var myDropzone = new Dropzone("#myDropzone",{})
+        load_cate(0)
+    })
+
+</script>
+<script type="text/javascript" src="{{ url_for('static', filename="ckeditor/ckeditor.js") }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/category.js') }}"></script>
+
