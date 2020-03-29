@@ -8,7 +8,7 @@ class GoodsCategory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30), unique=True)
     order_id = db.Column(db.Integer)
-    parent_id = db.Column(db.Integer, db.ForeignKey('goods_category.id'), default=0,)
+    parent_id = db.Column(db.Integer, db.ForeignKey('goods_category.id'), default=None)
 
     goods = db.relationship('Goods', back_populates='category')
     parent = db.relationship('GoodsCategory', back_populates="sub_cates", remote_side=[id])

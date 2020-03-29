@@ -25,7 +25,7 @@ class GoodsForm(FlaskForm):
 
 
 class CategoryForm(FlaskForm):
-    parent_id = HiddenField('Parent')
+    parent_id = HiddenField('Parent' )
     name = StringField('Name', validators=[DataRequired(), Length(1, 30)])
     order_id = IntegerField('OrderNo')
     submit = SubmitField()

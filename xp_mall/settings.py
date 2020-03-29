@@ -62,9 +62,12 @@ class BaseConfig(object):
 
 class DevelopmentConfig(BaseConfig):
     CKEDITOR_PKG_TYPE = "full"
+    # sqlite数据库
     SQLALCHEMY_DATABASE_URI = prefix + os.path.join(basedir, 'data.db')
+    # mysql数据库
+    # SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:123456@127.0.0.1/mymall"
     # alipay
-    # 支付宝支付
+    # 支付宝支付exit
     # 支付宝接口地址
     ALIPAY = {
         "DEBUG" : True,

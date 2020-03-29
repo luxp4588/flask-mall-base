@@ -18,6 +18,7 @@ Category 商品分类管理
 @admin_module.route('/category/manage/<int:parent_id>', methods=["GET"])
 @login_required
 def manage_category(parent_id):
+    parent_id = parent_id if parent_id else None
     categories = GoodsCategory.query.filter_by(parent_id=parent_id).order_by(GoodsCategory.order_id).all()
     return render_template('admin/category/category_list.html', categories=categories)
 
@@ -26,7 +27,9 @@ def manage_category(parent_id):
 def new_category():
     form = CategoryForm()
     if form.validate_on_submit():
-        parent_id = form.parent_id.data
+        # 第一层级目录的父级为""
+        # 使用0会发生约束完整性问题
+        parent_id = form.parent_id.data if int(form.parent_id.data) else None
         name = form.name.data
         order_id = form.order_id.data
         category = GoodsCategory(name=name, parent_id=parent_id,  order_id=order_id)
@@ -85,7 +88,8 @@ def delete_category():
 @admin_module.route('/category', methods=['get'])
 @login_required
 def get_cate():
-    parent_id= request.args.get("parent_id", 0, type=int)
+    parent_id = request.args.get("parent_id", 0, type=int)
+    parent_id = parent_id if parent_id else None
     sub_cates = GoodsCategory.query.filter_by(parent_id=parent_id).all()
     cate_dicts = [(sub_cate.name,sub_cate.id) for sub_cate in sub_cates]
     # print(cate_dicts)
