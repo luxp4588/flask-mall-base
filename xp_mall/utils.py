@@ -151,7 +151,7 @@ def get_all_parent(id):
                                 GoodsCategory.id )\
         .filter_by(id=id).order_by(GoodsCategory.id).first()
 
-    if category.parent_id!=0:
+    if category.parent_id!=None:
         return [(category.name, category.id)]+get_all_parent(category.parent_id)
     else:
         # print(category.name, category.id)
