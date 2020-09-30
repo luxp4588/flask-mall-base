@@ -35,6 +35,7 @@ qrcode = "*"
 alipay-python = "*"
 flask-alipay = "*"
 click = "*"
+email-validator = "*"
 
 [requires]
 python_version = "3.7"

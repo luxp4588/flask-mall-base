@@ -19,7 +19,9 @@ csrf     = CSRFProtect()
 ckeditor = CKEditor()
 moment = Moment()
 toolbar = DebugToolbarExtension()
-migrate = Migrate()
+# 默认compare_type=False， 表示忽略检查字段类型的变化，也就是修改字段类型不会认为数据表发生变化
+# 修改为True，当字段的数据类型或者长度方法是变化时，在migrate时会生成更新语句
+migrate = Migrate(compare_type=True)
 whooshee  = Whooshee()
 dropzone = Dropzone()
 # 支付对象

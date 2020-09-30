@@ -14,7 +14,7 @@ from xp_mall.admin.category import *
 from xp_mall.admin.member import *
 from xp_mall.admin.upload import *
 from xp_mall.admin.orders import *
-from xp_mall.forms.settings import SettingForm
+# from xp_mall.forms.settings import SettingForm
 @admin_module.before_request
 @login_required
 def is_admin():
@@ -30,20 +30,24 @@ def index():
 @admin_module.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
-    form = SettingForm()
-    if form.validate_on_submit():
-        current_user.name = form.name.data
-        current_user.blog_title = form.blog_title.data
-        current_user.blog_sub_title = form.blog_sub_title.data
-        current_user.about = form.about.data
-        db.session.commit()
-        flash('Setting updated.', 'success')
-        return redirect(url_for('blog.index'))
-    form.name.data = current_user.name
-    form.blog_title.data = current_user.blog_title
-    form.blog_sub_title.data = current_user.blog_sub_title
-    form.about.data = current_user.about
-    return render_template('admin/settings.html', form=form)
+    '''
+    通过后台配置参数
+    比如数据库连接参数
+    比如支付宝参数
+    比如商家信息等等
+    '''
+    pass
+    # form = SettingForm()
+    # if form.validate_on_submit():
+    #     current_user.name = form.name.data
+    #     current_user.blog_title = form.blog_title.data
+    #     current_user.blog_sub_title = form.blog_sub_title.data
+    #     current_user.about = form.about.data
+    #     db.session.commit()
+    #     flash('Setting updated.', 'success')
+    #     return redirect(url_for('blog.index'))
+    #
+    # return render_template('admin/settings.html', form=form)
 
 
 

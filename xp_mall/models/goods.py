@@ -21,7 +21,7 @@ class Goods(db.Model):
     category_id = db.Column(db.Integer, db.ForeignKey('goods_category.id'))
     thumb = db.Column(db.String(100))
     main_pic = db.Column(db.String(500))
-    price = db.Column(db.FLOAT)
+    price = db.Column(db.DECIMAL)
     detail = db.Column(db.TEXT)
     create_time = db.Column(db.DateTime)
     category = db.relationship('GoodsCategory')
