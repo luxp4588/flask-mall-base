@@ -73,8 +73,11 @@ def get_cart():
 
 
 def empty():
-    user_cart = Cart.query.filter_by(user_id=current_user.user_id).delete(synchronize_session=False)
-    db.session.commit()
+    try:
+        user_cart = Cart.query.filter_by(user_id=current_user.user_id).delete(synchronize_session=False)
+        db.session.commit()
+    except Exception as e:
+        print(e)
 
 
 
